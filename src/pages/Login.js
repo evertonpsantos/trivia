@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-// import { saveUser } from '../redux/actions';
 
 class Login extends Component {
   constructor() {
@@ -26,12 +25,19 @@ class Login extends Component {
     });
   };
 
-  handleSubmit = (event) => {
+  handleSubmit = async (event) => {
     event.preventDefault();
-    const { dispatch, history: { push } } = this.props;
-    const { email } = this.state;
-    dispatch(saveUser(email));
-    push('/carteira');
+    const { history: { push } } = this.props;
+    const response = await fetch('https://opentdb.com/api_token.php?command=request');
+    const { token } = await response.json();
+    localStorage.setItem('token', token);
+    push('/game');
+  };
+
+  goToSettings = (event) => {
+    event.preventDefault();
+    const { history: { push } } = this.props;
+    push('/settings');
   };
 
   render() {
@@ -39,6 +45,14 @@ class Login extends Component {
 
     return (
       <>
+        <button
+          type="button"
+          data-testid="btn-settings"
+          onClick={ this.goToSettings }
+        >
+          Configurações
+        </button>
+
         <h2>Login</h2>
         <form onSubmit={ this.handleSubmit }>
           <label htmlFor="email-input">
@@ -78,7 +92,6 @@ class Login extends Component {
 }
 
 Login.propTypes = {
-  dispatch: PropTypes.func.isRequired,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired,
   }).isRequired,
