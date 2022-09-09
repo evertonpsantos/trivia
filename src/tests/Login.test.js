@@ -1,7 +1,7 @@
 import React from 'react';
 import renderWithRouterAndRedux from './helpers/renderWithRouterAndRedux';
 import App from '../App';
-import { screen } from '@testing-library/react';
+import { findByText, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 describe('Testa a tela de Login', () => {
@@ -60,23 +60,39 @@ describe('Testa a tela de Login', () => {
     expect(pathname).toBe('/settings');
   });
 
-  it('Testa se o fetch é chamado ao clicar no botão', () => {
-    jest.spyOn(global, 'fetch');
-    global.fetch.mockResolvedValue({
-      json: jest.fn().mockResolvedValue('Deu bom'),
-    });
-
-    renderWithRouterAndRedux(<App />);
+  it('Testa se o fetch é chamado ao clicar no botão', async () => {
+    const { history } = renderWithRouterAndRedux(<App />);
     const button = screen.getByRole('button', { name: /Play/i });
     const emailInput = screen.getByRole('textbox', { name: /E-mail/i });
     const nameInput = screen.getByRole('textbox', { name: /Nome/i });
     const emailTest = 'johndoe@test.com';
     const nameTest = 'John Doe'
+    const token = 'abc7d499917ad429920d46da2dacfeb0baa92f3987ffd1484e6cd9f9669493ba'
     userEvent.type(emailInput, emailTest);
     userEvent.type(nameInput, nameTest);
     expect(button).toBeEnabled();
     userEvent.click(button);
-    expect(global.fetch).toHaveBeenCalled();
-    expect(global.fetch).toHaveBeenCalledWith('https://opentdb.com/api_token.php?command=request');
+    expect(history.location.pathname).toBe('/')
+  
   });
+
+  test("Verifica se o botão vai para '/game'", async () => {
+    const paginaHome = '/';
+    const { history } = renderWithRouterAndRedux(
+      <App />,
+      { initialEntries: [paginaHome] },
+    );
+    const emailInput = screen.getByRole('textbox', { name: /E-mail/i });
+    const nameInput = screen.getByRole('textbox', { name: /Nome/i });
+    const validacaoEmail = 'usimarc@otmail.com';
+    const validacaoName = 'Marcelo';
+    userEvent.type(emailInput, validacaoEmail);
+    userEvent.type(nameInput, validacaoName);
+
+    const botao = screen.getByRole('button', { name: /Play/i });
+    userEvent.click(botao);
+    await (waitFor(() => expect(botao).not.toBeInTheDocument(), {timeout:4000}));
+    expect(history.location.pathname).toBe('/game');
+  })
 })
+
