@@ -18,6 +18,7 @@ class Game extends Component {
       isDisabled: false,
       time: 30,
       difficulty: '',
+      next: false,
     };
   }
 
@@ -50,10 +51,10 @@ class Game extends Component {
     }, MIL);
   };
 
-  handleQuestions = (perguntaResults) => {
+  handleQuestions = (perguntaResults, nPer = 0) => {
     const { difficulty } = perguntaResults.results;
-    const respostaCerta = perguntaResults.results[0].correct_answer;
-    const respostas = [...perguntaResults.results[0].incorrect_answers, respostaCerta];
+    const respostaCerta = perguntaResults.results[nPer].correct_answer;
+    const respostas = [...perguntaResults.results[nPer].incorrect_answers, respostaCerta];
     let arraybackup = [...respostas];
     const respostasProntas = [];
     respostas.forEach((item, i) => {
@@ -72,25 +73,52 @@ class Game extends Component {
   handleClick = ({ target }) => {
     const { name } = target;
     const { time, difficulty } = this.state;
-    const { dispatch } = this.props;
+    const { dispatch, score } = this.props;
     const DEZ = 10;
     const TRES = 3;
     let DIFFICULTY = 0;
     if (difficulty === 'hard') DIFFICULTY = TRES;
     if (difficulty === 'medium') DIFFICULTY = 2;
     else DIFFICULTY = 1;
-    let score = 0;
+    let scoreSoma = 0;
     if (name === 'correct-answer') {
-      score = DEZ + (DIFFICULTY * time);
+      scoreSoma = DEZ + (DIFFICULTY * time) + score;
+      console.log(DIFFICULTY, time);
     }
-    this.setState({ green: 'green-border', red: 'red-border' }, () => {
-      dispatch(submitScore({ score }));
+    this.setState({ green: 'green-border', red: 'red-border', next: true }, () => {
+      dispatch(submitScore({ score: scoreSoma }));
+    });
+  };
+
+  handleNext = () => {
+    const { history } = this.props;
+    const { numeroPergunta, arrayPergunta } = this.state;
+    const nextQuest = numeroPergunta + 1;
+    const cinco = 5;
+    if (nextQuest === cinco) { return history.push('/feedback'); }
+    const { difficulty } = arrayPergunta[nextQuest];
+    const respostaCerta = arrayPergunta[nextQuest].correct_answer;
+    const respostas = [...arrayPergunta[nextQuest].incorrect_answers, respostaCerta];
+    let arraybackup = [...respostas];
+    const respostasProntas = [];
+    respostas.forEach((item, ind) => {
+      const index = Math.floor(Math.random() * arraybackup.length);
+      respostasProntas[ind] = arraybackup[index];
+      arraybackup = arraybackup.filter((e) => arraybackup.indexOf(e) !== index);
+    });
+    this.setState({
+      respostaCerta,
+      respostasProntas,
+      difficulty,
+      numeroPergunta: nextQuest,
+      green: '',
+      red: '',
     });
   };
 
   render() {
     const { arrayPergunta, numeroPergunta, respostasProntas,
-      respostaCerta, green, red, isDisabled } = this.state;
+      respostaCerta, green, red, isDisabled, next } = this.state;
     const { name, email } = this.props;
     const hashEmail = md5(email).toString();
     return (
@@ -140,6 +168,15 @@ class Game extends Component {
               ))}
 
             </div>
+            { next && (
+              <button
+                type="button"
+                data-testid="btn-next"
+                onClick={ this.handleNext }
+              >
+                Next
+              </button>
+            )}
           </div>
         )}
       </header>
@@ -150,16 +187,17 @@ class Game extends Component {
 const mapStateToProps = (state) => ({
   email: state.player.gravatarEmail,
   name: state.player.name,
+  score: state.player.score,
 });
 
 Game.propTypes = {
   email: PropTypes.string.isRequired,
+  score: PropTypes.number.isRequired,
   name: PropTypes.string.isRequired,
   dispatch: PropTypes.func.isRequired,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired,
   }).isRequired,
-  // responseCode: PropTypes.number.isRequired,
 };
 
 export default connect(mapStateToProps)(Game);
