@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import md5 from 'crypto-js/md5';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import '../App.css'
 
 class Game extends Component {
   constructor() {
@@ -11,7 +12,8 @@ class Game extends Component {
       numeroPergunta: 0,
       respostaCerta: '',
       respostasProntas: [],
-
+      green: '',
+      red: '',
     };
   }
 
@@ -30,7 +32,6 @@ class Game extends Component {
     const respostas = [...perguntaResults.results[0].incorrect_answers, respostaCerta];
     let arraybackup = [...respostas];
     const respostasProntas = [];
-    // const array = [1, 2, 3, 4, 5];
     respostas.forEach((item, i) => {
       const index = Math.floor(Math.random() * arraybackup.length);
       respostasProntas[i] = arraybackup[index];
@@ -43,8 +44,23 @@ class Game extends Component {
     });
   }
 
+  handleClick = ({ target }) => {
+    const { name } = target;
+    let color = '';
+    if (name === "correct-answer") {
+      console.log(name);
+      color = 'rgb(6, 240, 15)';
+    } else {
+      console.log(name);
+      color = 'red';
+    }
+    this.setState({ green: 'green-border', red: 'red-border' });
+  //   target.style.backgroundColor = color;
+  //   target.style.border = `3px solid ${color}`;
+  }
+
   render() {
-    const { arrayPergunta, numeroPergunta, respostasProntas, respostaCerta } = this.state;
+    const { arrayPergunta, numeroPergunta, respostasProntas, respostaCerta, green, red } = this.state;
     const { name, email } = this.props;
     const hashEmail = md5(email).toString();
     return (
@@ -68,9 +84,12 @@ class Game extends Component {
               {respostasProntas.map((resposta, index) => (
                 resposta === respostaCerta ? (
                   <button
-                    key={ `${resposta}` }
+                    key={ resposta }
                     type="button"
+                    className={ green }
+                    name="correct-answer"
                     data-testid="correct-answer"
+                    onClick={ this.handleClick }
                   >
                     {resposta}
                   </button>
@@ -78,7 +97,10 @@ class Game extends Component {
                   <button
                     key={ index }
                     type="button"
+                    name="wrong-answer"
+                    className={ red }
                     data-testid={ `wrong-answer-${index}` }
+                    onClick={ this.handleClick }
                   >
                     {resposta}
                   </button>
