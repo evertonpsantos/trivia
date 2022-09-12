@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import md5 from 'crypto-js/md5';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import '../App.css';
+import { submitScore } from '../redux/actions';
 
 class Game extends Component {
   constructor() {
@@ -11,7 +13,11 @@ class Game extends Component {
       numeroPergunta: 0,
       respostaCerta: '',
       respostasProntas: [],
-
+      green: '',
+      red: '',
+      isDisabled: false,
+      time: 30,
+      difficulty: '',
     };
   }
 
@@ -26,11 +32,30 @@ class Game extends Component {
       localStorage.removeItem('token');
       return history.push('/');
     }
+    this.handleQuestions(perguntaResults);
+    this.questionTimer();
+  }
+
+  questionTimer = () => {
+    const TRINTA = 30;
+    let TIME = TRINTA;
+    const MIL = 1000;
+    const timer = setInterval(() => {
+      if (TIME === 1) {
+        clearInterval(timer);
+        this.setState({ isDisabled: true });
+      }
+      TIME -= 1;
+      this.setState({ time: TIME });
+    }, MIL);
+  };
+
+  handleQuestions = (perguntaResults) => {
+    const { difficulty } = perguntaResults.results;
     const respostaCerta = perguntaResults.results[0].correct_answer;
     const respostas = [...perguntaResults.results[0].incorrect_answers, respostaCerta];
     let arraybackup = [...respostas];
     const respostasProntas = [];
-    // const array = [1, 2, 3, 4, 5];
     respostas.forEach((item, i) => {
       const index = Math.floor(Math.random() * arraybackup.length);
       respostasProntas[i] = arraybackup[index];
@@ -40,11 +65,32 @@ class Game extends Component {
       arrayPergunta: perguntaResults.results,
       respostaCerta,
       respostasProntas,
+      difficulty,
     });
-  }
+  };
+
+  handleClick = ({ target }) => {
+    const { name } = target;
+    const { time, difficulty } = this.state;
+    const { dispatch } = this.props;
+    const DEZ = 10;
+    const TRES = 3;
+    let DIFFICULTY = 0;
+    if (difficulty === 'hard') DIFFICULTY = TRES;
+    if (difficulty === 'medium') DIFFICULTY = 2;
+    else DIFFICULTY = 1;
+    let score = 0;
+    if (name === 'correct-answer') {
+      score = DEZ + (DIFFICULTY * time);
+    }
+    this.setState({ green: 'green-border', red: 'red-border' }, () => {
+      dispatch(submitScore({ score }));
+    });
+  };
 
   render() {
-    const { arrayPergunta, numeroPergunta, respostasProntas, respostaCerta } = this.state;
+    const { arrayPergunta, numeroPergunta, respostasProntas,
+      respostaCerta, green, red, isDisabled } = this.state;
     const { name, email } = this.props;
     const hashEmail = md5(email).toString();
     return (
@@ -68,9 +114,13 @@ class Game extends Component {
               {respostasProntas.map((resposta, index) => (
                 resposta === respostaCerta ? (
                   <button
-                    key={ `${resposta}` }
+                    key={ resposta }
                     type="button"
+                    className={ green }
+                    name="correct-answer"
                     data-testid="correct-answer"
+                    disabled={ isDisabled }
+                    onClick={ this.handleClick }
                   >
                     {resposta}
                   </button>
@@ -78,7 +128,11 @@ class Game extends Component {
                   <button
                     key={ index }
                     type="button"
+                    name="wrong-answer"
+                    disabled={ isDisabled }
+                    className={ red }
                     data-testid={ `wrong-answer-${index}` }
+                    onClick={ this.handleClick }
                   >
                     {resposta}
                   </button>
@@ -101,7 +155,7 @@ const mapStateToProps = (state) => ({
 Game.propTypes = {
   email: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
-  // dispatch: PropTypes.func.isRequired,
+  dispatch: PropTypes.func.isRequired,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired,
   }).isRequired,
