@@ -83,10 +83,9 @@ class Game extends Component {
     let scoreSoma = 0;
     if (name === 'correct-answer') {
       scoreSoma = DEZ + (DIFFICULTY * time) + score;
-      console.log(DIFFICULTY, time);
+      dispatch(submitScore({ score: scoreSoma }));
     }
     this.setState({ green: 'green-border', red: 'red-border', next: true }, () => {
-      dispatch(submitScore({ score: scoreSoma }));
     });
   };
 
@@ -119,7 +118,7 @@ class Game extends Component {
   render() {
     const { arrayPergunta, numeroPergunta, respostasProntas,
       respostaCerta, green, red, isDisabled, next } = this.state;
-    const { name, email } = this.props;
+    const { name, email, score } = this.props;
     const hashEmail = md5(email).toString();
     return (
       <header>
@@ -129,7 +128,7 @@ class Game extends Component {
           data-testid="header-profile-picture"
         />
         <p data-testid="header-player-name">{name}</p>
-        <p data-testid="header-score">0</p>
+        <p data-testid="header-score">{score}</p>
         {arrayPergunta.length === 0 ? <p>Loading...</p> : (
           <div>
             <p

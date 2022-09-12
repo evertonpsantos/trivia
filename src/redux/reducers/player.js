@@ -19,6 +19,7 @@ const player = (state = INIT_STATE, action) => {
     return {
       ...state,
       score: Number(action.score),
+      assertions: Number(state.assertions) + 1,
     };
 
   default:
