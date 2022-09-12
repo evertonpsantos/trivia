@@ -15,11 +15,11 @@ const player = (state = INIT_STATE, action) => {
       name: action.userName,
       gravatarEmail: action.email,
     };
-    case SUBMIT_SCORE:
-      return {
-        ...state,
-        score: Number(action.score),
-      };
+  case SUBMIT_SCORE:
+    return {
+      ...state,
+      score: Number(action.score),
+    };
 
   default:
     return state;

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import md5 from 'crypto-js/md5';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import '../App.css'
+import '../App.css';
 import { submitScore } from '../redux/actions';
 
 class Game extends Component {
@@ -16,7 +16,6 @@ class Game extends Component {
       green: '',
       red: '',
       isDisabled: false,
-      score: 0,
       time: 30,
       difficulty: '',
     };
@@ -36,9 +35,11 @@ class Game extends Component {
     this.handleQuestions(perguntaResults);
     this.questionTimer();
   }
-  
+
   questionTimer = () => {
-    let TIME = 30;
+    const TRINTA = 30;
+    let TIME = TRINTA;
+    const MIL = 1000;
     const timer = setInterval(() => {
       if (TIME === 1) {
         clearInterval(timer);
@@ -46,13 +47,13 @@ class Game extends Component {
       }
       TIME -= 1;
       this.setState({ time: TIME });
-    }, 1000);
-  }
-  
+    }, MIL);
+  };
+
   handleQuestions = (perguntaResults) => {
+    const { difficulty } = perguntaResults.results;
     const respostaCerta = perguntaResults.results[0].correct_answer;
     const respostas = [...perguntaResults.results[0].incorrect_answers, respostaCerta];
-    const difficulty = perguntaResults.results.difficulty;
     let arraybackup = [...respostas];
     const respostasProntas = [];
     respostas.forEach((item, i) => {
@@ -66,25 +67,30 @@ class Game extends Component {
       respostasProntas,
       difficulty,
     });
-  }
+  };
 
   handleClick = ({ target }) => {
     const { name } = target;
     const { time, difficulty } = this.state;
     const { dispatch } = this.props;
-    const DIFFICULTY = difficulty === 'hard' ? 3 : difficulty === 'medium' ? 2 : 1;
+    const DEZ = 10;
+    const TRES = 3;
+    let DIFFICULTY = 0;
+    if (difficulty === 'hard') DIFFICULTY = TRES;
+    if (difficulty === 'medium') DIFFICULTY = 2;
+    else DIFFICULTY = 1;
     let score = 0;
     if (name === 'correct-answer') {
-      score = 10 + (DIFFICULTY * time);
+      score = DEZ + (DIFFICULTY * time);
     }
-    this.setState({ green: 'green-border', red: 'red-border', score }, () => {
+    this.setState({ green: 'green-border', red: 'red-border' }, () => {
       dispatch(submitScore({ score }));
     });
-  }
+  };
 
   render() {
     const { arrayPergunta, numeroPergunta, respostasProntas,
-    respostaCerta, green, red, isDisabled } = this.state;
+      respostaCerta, green, red, isDisabled } = this.state;
     const { name, email } = this.props;
     const hashEmail = md5(email).toString();
     return (
