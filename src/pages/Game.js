@@ -3,6 +3,7 @@ import md5 from 'crypto-js/md5';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import '../App.css'
+import { submitScore } from '../redux/actions';
 
 class Game extends Component {
   constructor() {
@@ -14,6 +15,10 @@ class Game extends Component {
       respostasProntas: [],
       green: '',
       red: '',
+      isDisabled: false,
+      score: 0,
+      time: 30,
+      difficulty: '',
     };
   }
 
@@ -28,8 +33,26 @@ class Game extends Component {
       localStorage.removeItem('token');
       return history.push('/');
     }
+    this.handleQuestions(perguntaResults);
+    this.questionTimer();
+  }
+  
+  questionTimer = () => {
+    let TIME = 30;
+    const timer = setInterval(() => {
+      if (TIME === 1) {
+        clearInterval(timer);
+        this.setState({ isDisabled: true });
+      }
+      TIME -= 1;
+      this.setState({ time: TIME });
+    }, 1000);
+  }
+  
+  handleQuestions = (perguntaResults) => {
     const respostaCerta = perguntaResults.results[0].correct_answer;
     const respostas = [...perguntaResults.results[0].incorrect_answers, respostaCerta];
+    const difficulty = perguntaResults.results.difficulty;
     let arraybackup = [...respostas];
     const respostasProntas = [];
     respostas.forEach((item, i) => {
@@ -41,26 +64,27 @@ class Game extends Component {
       arrayPergunta: perguntaResults.results,
       respostaCerta,
       respostasProntas,
+      difficulty,
     });
   }
 
   handleClick = ({ target }) => {
     const { name } = target;
-    let color = '';
-    if (name === "correct-answer") {
-      console.log(name);
-      color = 'rgb(6, 240, 15)';
-    } else {
-      console.log(name);
-      color = 'red';
+    const { time, difficulty } = this.state;
+    const { dispatch } = this.props;
+    const DIFFICULTY = difficulty === 'hard' ? 3 : difficulty === 'medium' ? 2 : 1;
+    let score = 0;
+    if (name === 'correct-answer') {
+      score = 10 + (DIFFICULTY * time);
     }
-    this.setState({ green: 'green-border', red: 'red-border' });
-  //   target.style.backgroundColor = color;
-  //   target.style.border = `3px solid ${color}`;
+    this.setState({ green: 'green-border', red: 'red-border', score }, () => {
+      dispatch(submitScore({ score }));
+    });
   }
 
   render() {
-    const { arrayPergunta, numeroPergunta, respostasProntas, respostaCerta, green, red } = this.state;
+    const { arrayPergunta, numeroPergunta, respostasProntas,
+    respostaCerta, green, red, isDisabled } = this.state;
     const { name, email } = this.props;
     const hashEmail = md5(email).toString();
     return (
@@ -89,6 +113,7 @@ class Game extends Component {
                     className={ green }
                     name="correct-answer"
                     data-testid="correct-answer"
+                    disabled={ isDisabled }
                     onClick={ this.handleClick }
                   >
                     {resposta}
@@ -98,6 +123,7 @@ class Game extends Component {
                     key={ index }
                     type="button"
                     name="wrong-answer"
+                    disabled={ isDisabled }
                     className={ red }
                     data-testid={ `wrong-answer-${index}` }
                     onClick={ this.handleClick }
@@ -123,7 +149,7 @@ const mapStateToProps = (state) => ({
 Game.propTypes = {
   email: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
-  // dispatch: PropTypes.func.isRequired,
+  dispatch: PropTypes.func.isRequired,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired,
   }).isRequired,
