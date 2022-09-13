@@ -27,6 +27,8 @@ class Feedback extends Component {
           >
             { assertions < MINIMAL ? 'Could be better...' : 'Well Done!'}
           </p>
+          <p data-testid="feedback-total-score">{score}</p>
+          <p data-testid="feedback-total-question">{assertions}</p>
         </section>
       </>
     );
@@ -44,7 +46,7 @@ Feedback.propTypes = {
   name: PropTypes.string.isRequired,
   email: PropTypes.string.isRequired,
   score: PropTypes.number.isRequired,
-  assertions: PropTypes.string.isRequired,
+  assertions: PropTypes.number.isRequired,
 };
 
 export default connect(mapStateToProps)(Feedback);
