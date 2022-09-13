@@ -2,7 +2,7 @@ import { SUBMIT_LOGIN, SUBMIT_SCORE } from '../actions';
 
 const INIT_STATE = {
   name: '',
-  assertions: '',
+  assertions: 0,
   score: 0,
   gravatarEmail: '',
 };
