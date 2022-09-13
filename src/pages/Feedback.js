@@ -2,36 +2,44 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import md5 from 'crypto-js/md5';
 import PropTypes from 'prop-types';
+import { submitScore } from '../redux/actions';
 
 class Feedback extends Component {
   componentDidMount() {
     const { name, email, score } = this.props;
     const hashEmail = md5(email).toString();
 
-    const players = JSON.parse(localStorage.getItem('ranking'));
-
-    if (!players) {
-      localStorage.setItem('ranking', JSON.stringify([]));
-    }
-
+    const players = JSON.parse(localStorage.getItem('ranking')) || [];
     const userRank = {
       name,
       score,
       picture: `https://www.gravatar.com/avatar/${hashEmail}`,
     };
+    const newRank = [...players, userRank];
+    // const backup = [...players, userRank];
+    for (let i = 0; i < newRank.length; i += 1) {
+      for (let j = i; j < newRank.length; j += 1) {
+        let aux = 0;
+        if (newRank[i].score <= newRank[j].score) {
+          aux = newRank[i];
+          newRank[i] = newRank[j];
+          newRank[j] = aux;
+        }
+      }
+    }
 
-    // const newRank = [players, userRank];
-
-    localStorage.setItem('ranking', JSON.stringify(userRank));
+    localStorage.setItem('ranking', JSON.stringify(newRank));
   }
 
   handleClick = () => {
-    const { history: { push } } = this.props;
+    const { dispatch, history: { push } } = this.props;
+    dispatch(submitScore({ score: 0, assertions: 0 }));
     push('/');
   };
 
   goToRank = () => {
-    const { history: { push } } = this.props;
+    const { dispatch, history: { push } } = this.props;
+    dispatch(submitScore({ score: 0, assertions: 0 }));
     push('/ranking');
   };
 
@@ -87,6 +95,7 @@ Feedback.propTypes = {
   name: PropTypes.string.isRequired,
   email: PropTypes.string.isRequired,
   score: PropTypes.number.isRequired,
+  dispatch: PropTypes.func.isRequired,
   assertions: PropTypes.number.isRequired,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired,

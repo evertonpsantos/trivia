@@ -73,7 +73,7 @@ class Game extends Component {
   handleClick = ({ target }) => {
     const { name } = target;
     const { time, difficulty } = this.state;
-    const { dispatch, score } = this.props;
+    const { dispatch, score, assertions } = this.props;
     const DEZ = 10;
     const TRES = 3;
     let DIFFICULTY = 0;
@@ -83,7 +83,8 @@ class Game extends Component {
     let scoreSoma = 0;
     if (name === 'correct-answer') {
       scoreSoma = DEZ + (DIFFICULTY * time) + score;
-      dispatch(submitScore({ score: scoreSoma }));
+      const ASSERTIONS = 1 + assertions;
+      dispatch(submitScore({ score: scoreSoma, assertions: ASSERTIONS }));
     }
     this.setState({ green: 'green-border', red: 'red-border', next: true }, () => {
     });
@@ -187,11 +188,13 @@ const mapStateToProps = (state) => ({
   email: state.player.gravatarEmail,
   name: state.player.name,
   score: state.player.score,
+  assertions: state.player.assertions,
 });
 
 Game.propTypes = {
   email: PropTypes.string.isRequired,
   score: PropTypes.number.isRequired,
+  assertions: PropTypes.number.isRequired,
   name: PropTypes.string.isRequired,
   dispatch: PropTypes.func.isRequired,
   history: PropTypes.shape({
