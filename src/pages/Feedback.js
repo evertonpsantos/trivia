@@ -4,6 +4,11 @@ import md5 from 'crypto-js/md5';
 import PropTypes from 'prop-types';
 
 class Feedback extends Component {
+  handleClick = () => {
+    const { history: { push } } = this.props;
+    push('/');
+  };
+
   render() {
     const { name, email, score, assertions } = this.props;
     const hashEmail = md5(email).toString();
@@ -29,6 +34,13 @@ class Feedback extends Component {
           </p>
           <p data-testid="feedback-total-score">{score}</p>
           <p data-testid="feedback-total-question">{assertions}</p>
+          <button
+            type="button"
+            data-testid="btn-play-again"
+            onClick={ this.handleClick }
+          >
+            Play Again
+          </button>
         </section>
       </>
     );
@@ -47,6 +59,7 @@ Feedback.propTypes = {
   email: PropTypes.string.isRequired,
   score: PropTypes.number.isRequired,
   assertions: PropTypes.number.isRequired,
+  history: PropTypes.func.isRequired,
 };
 
 export default connect(mapStateToProps)(Feedback);
