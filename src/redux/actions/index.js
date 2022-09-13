@@ -6,7 +6,7 @@ export const submitToStore = (state) => ({
   ...state,
 });
 
-export const submitScore = (state) => ({
+export const submitScore = (obj) => ({
   type: SUBMIT_SCORE,
-  ...state,
+  obj,
 });

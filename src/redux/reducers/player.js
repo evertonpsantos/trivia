@@ -18,8 +18,7 @@ const player = (state = INIT_STATE, action) => {
   case SUBMIT_SCORE:
     return {
       ...state,
-      score: Number(action.score),
-      assertions: Number(state.assertions) + 1,
+      ...action.obj,
     };
 
   default:
