@@ -9,6 +9,11 @@ class Feedback extends Component {
     push('/');
   };
 
+  goToRank = () => {
+    const { history: { push } } = this.props;
+    push('/ranking');
+  };
+
   render() {
     const { name, email, score, assertions } = this.props;
     const hashEmail = md5(email).toString();
@@ -40,6 +45,9 @@ class Feedback extends Component {
             onClick={ this.handleClick }
           >
             Play Again
+          </button>
+          <button type="button" data-testid="btn-ranking" onClick={ this.goToRank }>
+            Ranking
           </button>
         </section>
       </>
