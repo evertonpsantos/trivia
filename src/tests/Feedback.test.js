@@ -1,9 +1,8 @@
 import React from 'react';
 import userEvent from '@testing-library/user-event';
 import { screen } from '@testing-library/react';
-import render, { renderWithRouterAndRedux } from './helpers/renderWithRouterAndRedux';
+import { renderWithRouterAndRedux } from './helpers/renderWithRouterAndRedux';
 import App from '../App';
-import Feedback from '../pages/Feedback';
 
 describe('Testa a tela de Feedback', () => {
   const INIT_STATE_FAIL = {
@@ -47,7 +46,7 @@ describe('Testa a tela de Feedback', () => {
     const playAgainBtn = screen.getByRole('button', { name: /Play Again/i });
     expect(playAgainBtn).toBeInTheDocument();
     userEvent.click(playAgainBtn);
-    const loginTitle = screen.getByRole('heading', { level: 2, name: /Login/i })
+    const loginTitle = screen.getByRole('heading', { level: 2, name: /Login/i });
     expect(loginTitle).toBeInTheDocument();
   });
 
