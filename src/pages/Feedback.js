@@ -16,7 +16,7 @@ class Feedback extends Component {
       picture: `https://www.gravatar.com/avatar/${hashEmail}`,
     };
     const newRank = [...players, userRank];
-    // const backup = [...players, userRank];
+
     for (let i = 0; i < newRank.length; i += 1) {
       for (let j = i; j < newRank.length; j += 1) {
         let aux = 0;

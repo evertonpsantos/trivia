@@ -65,7 +65,6 @@ describe('Testa a tela de Login', () => {
     const emailInput = screen.getByRole('textbox', { name: /E-mail/i });
     const nameInput = screen.getByRole('textbox', { name: /Nome/i });
 
-    // const token = 'abc7d499917ad429920d46da2dacfeb0baa92f3987ffd1484e6cd9f9669493ba'
     userEvent.type(emailInput, emailTest);
     userEvent.type(nameInput, nameTest);
     expect(button).toBeEnabled();

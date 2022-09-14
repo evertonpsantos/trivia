@@ -1,94 +1,70 @@
-// import React from 'react';
-// import userEvent from '@testing-library/user-event';
-// import { screen, waitFor } from '@testing-library/react';
-// import render from './helpers/renderWithRouterAndRedux';
-// import App from '../App';
+import React from 'react';
+import userEvent from '@testing-library/user-event';
+import { screen } from '@testing-library/react';
+import render, { renderWithRouterAndRedux } from './helpers/renderWithRouterAndRedux';
+import App from '../App';
+import Feedback from '../pages/Feedback';
 
-// describe('Testa a tela de Login', () => {
-//   const emailTest = 'johndoe@test.com';
-//   const nameTest = 'John Doe';
+describe('Testa a tela de Feedback', () => {
+  const INIT_STATE_FAIL = {
+    player: {
+      name: 'John Doe',
+      assertions: 1,
+      score: 30,
+      gravatarEmail: 'johndoe@test.test'
+    }
+  }
 
-//   it('Testa se ao entrar na página o input de email e nome são renderizados', () => {
-//     render(<App />);
-//     const emailInput = screen.getByRole('textbox', { name: /E-mail/i });
-//     const nameInput = screen.getByRole('textbox', { name: /Nome/i });
-//     expect(emailInput).toBeInTheDocument();
-//     expect(nameInput).toBeInTheDocument();
-//   });
+  const INIT_STATE_SUCCESS = {
+    player: {
+      name: 'Johanna Doe',
+      assertions: 4,
+      score: 120,
+      gravatarEmail: 'johannadoe@test.test'
+    }
+  }
 
-//   it('Testa se é possivel digitar nos inputs', () => {
-//     renderWithRouterAndRedux(<App />);
-//     const emailInput = screen.getByRole('textbox', { name: /E-mail/i });
-//     const nameInput = screen.getByRole('textbox', { name: /Nome/i });
-//     userEvent.type(emailInput, emailTest);
-//     userEvent.type(nameInput, nameTest);
-//     expect(emailInput.value).toBe(emailTest);
-//     expect(nameInput.value).toBe(nameTest);
-//   });
+  it('Testa se esta na página de feedback', () => {
+    renderWithRouterAndRedux(<App />, INIT_STATE_FAIL, '/feedback');
+    const feedbackTitle = screen.getByRole('heading', { level: 1, name: /Feedback/i });
+    expect(feedbackTitle).toBeInTheDocument();
+  });
 
-//   it('Testa se o botão vem desabilitado e é possivel habilita-lo', () => {
-//     renderWithRouterAndRedux(<App />);
-//     const button = screen.getByRole('button', { name: /Play/i });
-//     expect(button).toBeDisabled();
-//     const emailInput = screen.getByRole('textbox', { name: /E-mail/i });
-//     const nameInput = screen.getByRole('textbox', { name: /Nome/i });
+  it('Testa se a tela contem as informações corretas', () => {
+    renderWithRouterAndRedux(<App />, INIT_STATE_FAIL, '/feedback');
+    const playerName = screen.getByText('John Doe');
+    const playerScore = screen.getByTestId('feedback-total-score');
+    const assertionsMessage = screen.getByText('Could be better...');
+    const assertions = screen.getByText('1');
+    expect(playerName).toBeInTheDocument();
+    expect(playerScore).toBeInTheDocument();
+    expect(assertionsMessage).toBeInTheDocument();
+    expect(assertions).toBeInTheDocument();
+  });
 
-//     userEvent.type(emailInput, emailTest);
-//     userEvent.type(nameInput, nameTest);
-//     expect(button).toBeEnabled();
-//     userEvent.click(button);
-//   });
+  it('Testa se é possível jogar novamente', () => {
+    renderWithRouterAndRedux(<App />, INIT_STATE_FAIL, '/feedback');
+    const playAgainBtn = screen.getByRole('button', { name: /Play Again/i });
+    expect(playAgainBtn).toBeInTheDocument();
+    userEvent.click(playAgainBtn);
+    const loginTitle = screen.getByRole('heading', { level: 2, name: /Login/i })
+    expect(loginTitle).toBeInTheDocument();
+  });
 
-//   it('Testa se ao clicar no botão é redirecionado para /game', async () => {
-//     renderWithRouterAndRedux(<App />);
-//     const emailInput = screen.getByRole('textbox', { name: /E-mail/i });
-//     const nameInput = screen.getByRole('textbox', { name: /Nome/i });
+  it('Testa se é possível acessar página de ranking', () => {
+    renderWithRouterAndRedux(<App />, INIT_STATE_FAIL, '/feedback');
+    const rankingBtn = screen.getByRole('button', { name: /Ranking/i });
+    expect(rankingBtn).toBeInTheDocument();
+    userEvent.click(rankingBtn);
+    const rankingTitle = screen.getByRole('heading', { level: 1, name: /Ranking/i });
+    expect(rankingTitle).toBeInTheDocument();
+  });
 
-//     userEvent.type(emailInput, emailTest);
-//     userEvent.type(nameInput, nameTest);
-//     const button = screen.getByRole('button', { name: /Play/i });
-//     expect(button).toBeEnabled();
-//     userEvent.click(button);
-//   });
-
-//   it('Testa se ao clicar no botão de configurações é redirecionado', () => {
-//     const { history } = renderWithRouterAndRedux(<App />);
-//     const settingsButton = screen.getByRole('button', { name: /Configurações/i });
-//     userEvent.click(settingsButton);
-//     const { location: { pathname } } = history;
-//     expect(pathname).toBe('/settings');
-//   });
-
-//   it('Testa se o fetch é chamado ao clicar no botão', async () => {
-//     const { history } = renderWithRouterAndRedux(<App />);
-//     const button = screen.getByRole('button', { name: /Play/i });
-//     const emailInput = screen.getByRole('textbox', { name: /E-mail/i });
-//     const nameInput = screen.getByRole('textbox', { name: /Nome/i });
-
-//     // const token = 'abc7d499917ad429920d46da2dacfeb0baa92f3987ffd1484e6cd9f9669493ba'
-//     userEvent.type(emailInput, emailTest);
-//     userEvent.type(nameInput, nameTest);
-//     expect(button).toBeEnabled();
-//     userEvent.click(button);
-//     expect(history.location.pathname).toBe('/');
-//   });
-
-//   test('Verifica se o botão vai para "/game"', async () => {
-//     const paginaHome = '/';
-//     const { history } = renderWithRouterAndRedux(
-//       <App />,
-//       { initialEntries: [paginaHome] },
-//     );
-//     const emailInput = screen.getByRole('textbox', { name: /E-mail/i });
-//     const nameInput = screen.getByRole('textbox', { name: /Nome/i });
-//     const validacaoEmail = 'usimarc@otmail.com';
-//     const validacaoName = 'Marcelo';
-//     userEvent.type(emailInput, validacaoEmail);
-//     userEvent.type(nameInput, validacaoName);
-
-//     const botao = screen.getByRole('button', { name: /Play/i });
-//     userEvent.click(botao);
-//     await (waitFor(() => expect(botao).not.toBeInTheDocument(), {timeout:4000}));
-//     expect(history.location.pathname).toBe('/game');
-//   });
-// });
+  it('Testa se aparece a mensagem acerta com mais de 3 acertos', () => {
+    renderWithRouterAndRedux(<App />, INIT_STATE_SUCCESS, '/feedback');
+    const assertions = screen.getByText('4');
+    const assertionsMessage = screen.getByText('Well Done!');
+    expect(assertions).toBeInTheDocument();
+    expect(assertionsMessage).toBeInTheDocument();
+  });
+  });
