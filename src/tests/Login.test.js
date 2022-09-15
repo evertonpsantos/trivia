@@ -1,7 +1,7 @@
 import React from 'react';
 import userEvent from '@testing-library/user-event';
 import { screen, waitFor } from '@testing-library/react';
-import render from './helpers/renderWithRouterAndRedux';
+import render, { renderWithRouterAndRedux } from './helpers/renderWithRouterAndRedux';
 import App from '../App';
 
 describe('Testa a tela de Login', () => {
@@ -73,11 +73,7 @@ describe('Testa a tela de Login', () => {
   });
 
   test('Verifica se o botão vai para "/game"', async () => {
-    const paginaHome = '/';
-    const { history } = render(
-      <App />,
-      { initialEntries: [paginaHome] },
-    );
+    const { history } = renderWithRouterAndRedux(<App />)
     const emailInput = screen.getByRole('textbox', { name: /E-mail/i });
     const nameInput = screen.getByRole('textbox', { name: /Nome/i });
     const validacaoEmail = 'usimarc@otmail.com';

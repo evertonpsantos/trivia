@@ -38,13 +38,13 @@ class Game extends Component {
   }
 
   questionTimer = () => {
-    const TRINTA = 30;
-    let TIME = TRINTA;
+    const { time } = this.state;
+    let TIME = time;
     const MIL = 1000;
     const timer = setInterval(() => {
       if (TIME === 1) {
         clearInterval(timer);
-        this.setState({ isDisabled: true });
+        return this.setState({ isDisabled: true });
       }
       TIME -= 1;
       this.setState({ time: TIME });
@@ -113,12 +113,13 @@ class Game extends Component {
       numeroPergunta: nextQuest,
       green: '',
       red: '',
+      time: 30,
     });
   };
 
   render() {
     const { arrayPergunta, numeroPergunta, respostasProntas,
-      respostaCerta, green, red, isDisabled, next } = this.state;
+      respostaCerta, green, red, isDisabled, next, time } = this.state;
     const { name, email, score } = this.props;
     const hashEmail = md5(email).toString();
     return (
@@ -130,6 +131,7 @@ class Game extends Component {
         />
         <p data-testid="header-player-name">{name}</p>
         <p data-testid="header-score">{score}</p>
+        <p>{`Timer: ${time}`}</p>
         {arrayPergunta.length === 0 ? <p>Loading...</p> : (
           <div>
             <p
