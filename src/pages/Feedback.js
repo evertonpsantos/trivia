@@ -17,18 +17,9 @@ class Feedback extends Component {
     };
     const newRank = [...players, userRank];
 
-    for (let i = 0; i < newRank.length; i += 1) {
-      for (let j = i; j < newRank.length; j += 1) {
-        let aux = 0;
-        if (newRank[i].score <= newRank[j].score) {
-          aux = newRank[i];
-          newRank[i] = newRank[j];
-          newRank[j] = aux;
-        }
-      }
-    }
+    const sortedNewRank = newRank.sort((a, b) => b.score - a.score);
 
-    localStorage.setItem('ranking', JSON.stringify(newRank));
+    localStorage.setItem('ranking', JSON.stringify(sortedNewRank));
   }
 
   handleClick = () => {
